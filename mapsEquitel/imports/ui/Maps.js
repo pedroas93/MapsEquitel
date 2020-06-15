@@ -11,17 +11,24 @@ class Maps extends Component {
 
     this.state = {
       open_TC: false,
-      nameRestaurant:""
+      restauranName: "",
+      restaurantComment: "",
+      restaurantScore: "",
+      restaurantId:""
     }
   }
 
- 
+
   onInfoWiweClick = (props, marker, e) => {
     console.log('THE EVENT IS THROW', props, marker, e);
     this.setState({
       open_TC: true,
-      nameRestaurant: marker.name
+      restauranName: marker.name,
+      restaurantComment: marker.comment,
+      restaurantScore: marker.score,
+      restaurantId:marker.id,
     })
+
   }
 
   handleClose_TC = () => {
@@ -36,7 +43,10 @@ class Maps extends Component {
       <section>
 
         <ModalInfoMarker
-          name={this.state.nameRestaurant}
+          name={this.state.restauranName}
+          comment={this.state.restaurantComment}
+          score={this.state.restaurantScore}
+          id={this.state.restaurantId}
           open_TC={this.state.open_TC}
           TC_messaje={this.state.TC_messaje}
           handleClose_TC={this.handleClose_TC}
@@ -63,6 +73,9 @@ class Maps extends Component {
                 lng: marker.restaurantLng
               }}
               name={marker.restauranName}
+              comment={marker.restaurantComment}
+              score={marker.restauranScore}
+              id={marker._id}
             />
           })}
 

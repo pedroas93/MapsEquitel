@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Tasks } from '../api/tasks';
 import classNames from 'classnames';
 
 class Task extends Component {
@@ -50,7 +49,7 @@ class Task extends Component {
                     </button>
                 ) : null}
 
-                <span className="text"> <strong>{task.username}</strong>: {task.restauranName} / {task.restaurantLat} /{task.restaurantLng} / {task.restaurantType}/ {task.restaurantComment}/ {task.restaurantScore}</span>
+                <span className="text"> <strong>{task.username}</strong>: {task.restauranName} / {task.restaurantLat} /{task.restaurantLng} / {task.restaurantType}/ {task.restaurantComment}/ {task.restauranScore}</span>
             </li>
         )
     }

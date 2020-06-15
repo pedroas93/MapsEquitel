@@ -5,8 +5,6 @@ import { Tasks } from '../api/tasks';
 import Task from './Task';
 import { Meteor } from 'meteor/meteor';
 import AccountsUIWrapper from './AccountsUIWrapper.js';
-import { GoogleApiWrapper, InfoWindow, Map, Marker } from 'google-maps-react';
-import settings from '../../settings';
 import Maps from "./Maps"
 
 class App extends Component {
@@ -59,6 +57,8 @@ class App extends Component {
     const { tasks } = this.props;
     const { hideCompleted } = this.state;
     let filteredTasks = tasks;
+
+    console.log('I NEED KNOW IS THISSSSSSSSSSS', tasks);
 
     if (hideCompleted) {
       filteredTasks = filteredTasks.filter(task => !task.checked);
@@ -115,8 +115,10 @@ class App extends Component {
           }
         </header>
         <ul>{this.renderTasks()}</ul>
+        {/* {tasks.map(marker => {
+            return <h1>{marker._id}</h1>
 
-
+          })} */}
         <Maps
           task={tasks}
         />
@@ -134,7 +136,4 @@ export default withTracker(() => {
     incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
     currentUser: Meteor.user(),
   };
-})
-  (GoogleApiWrapper({
-    apiKey: (settings.maps.google_maps_key)
-  })(App));
+})(App);

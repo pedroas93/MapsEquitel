@@ -3,6 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 // export const Tasks = Mongo.Collection('tasks');
 export const Tasks = new Mongo.Collection('tasks');
+export const Qualification = new Mongo.Collection('Qualification');
 
 
 if (Meteor.isServer) {
@@ -19,7 +20,7 @@ if (Meteor.isServer) {
 }
 
 Meteor.methods({
-    'tasks.insert'( restauranName, restaurantLat, restaurantLng, restaurantType, restaurantComment, restauranScore) {
+    'tasks.insert'(restauranName, restaurantLat, restaurantLng, restaurantType, restaurantComment, restauranScore) {
         check(restauranName, String);
         check(restaurantLat, String);
         check(restaurantLng, String);
@@ -44,6 +45,44 @@ Meteor.methods({
 
     },
 
+    'tasks.updateOwnCommentScore'(taskId, setRestaurantComment, setRestauranScore) {
+        check(taskId, String);
+        check(setRestaurantComment, String);
+        check(setRestauranScore, String);
+
+        console.log('------>', taskId, '----->', setRestaurantComment, '------->', setRestauranScore)
+        const task = Tasks.findOne(taskId);
+        if (task.owner !== this.userId) {
+            throw new Meteor.Error('not-Autorized');
+        }
+        Tasks.update(taskId, { $set: { restaurantComment: setRestaurantComment, restauranScore: setRestauranScore } });
+    },
+
+    'tasks.updateCommentScore'(taskId, setRestaurantComment, setRestauranScore) {
+        check(taskId, String);
+        check(setRestaurantComment, String);
+        check(setRestauranScore, String);
+
+        console.log('------>', taskId, '----->', setRestaurantComment, '------->', setRestauranScore)
+        const qualification = Qualification.findOne(taskId);
+        if (!qualification) {
+            Qualification.insert({
+                setRestaurantComment,
+                setRestauranScore,
+                createAt: new Date(),
+            });
+        } else {
+            Qualification.update(
+                taskId,
+                {
+                    $set: {
+                        restaurantComment: setRestaurantComment,
+                        restauranScore: setRestauranScore
+                    }
+                });
+        }
+    },
+
     'tasks.remove'(taskId) {
         check(taskId, String);
         const task = Tasks.findOne(taskId);
@@ -52,6 +91,8 @@ Meteor.methods({
         }
         Tasks.remove(taskId);
     },
+
+
     'tasks.setChecked'(taskId, setChecked) {
         check(taskId, String);
         check(setChecked, Boolean);
