@@ -14,7 +14,7 @@ class Task extends Component {
 
     _toggleCheked() {
         const { task } = this.props;
-        Meteor.call('tasks.setChecked', task, id, !task.checked);
+        Meteor.call('tasks.setChecked', task._id, !task.checked);
     }
 
     _deleteThisTask() {
@@ -50,7 +50,7 @@ class Task extends Component {
                     </button>
                 ) : null}
 
-                <span className="text"> <strong>{task.username}</strong>: {task.text}</span>
+                <span className="text"> <strong>{task.username}</strong>: {task.restauranName} / {task.restaurantLat} /{task.restaurantLng} / {task.restaurantType}/ {task.restaurantComment}/ {task.restaurantScore}</span>
             </li>
         )
     }

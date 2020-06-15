@@ -19,14 +19,24 @@ if (Meteor.isServer) {
 }
 
 Meteor.methods({
-    'tasks.insert'(text) {
-        check(text, String);
+    'tasks.insert'( restauranName, restaurantLat, restaurantLng, restaurantType, restaurantComment, restauranScore) {
+        check(restauranName, String);
+        check(restaurantLat, String);
+        check(restaurantLng, String);
+        check(restaurantType, String);
+        check(restaurantComment, String);
+        check(restauranScore, String);
 
         if (!this.userId) {
             throw new Meteor.Error('no-autorized');
         }
         Tasks.insert({
-            text,
+            restauranName,
+            restaurantLat,
+            restaurantLng,
+            restaurantType,
+            restaurantComment,
+            restauranScore,
             createAt: new Date(),
             owner: Meteor.userId(),
             username: Meteor.user().username,
@@ -36,6 +46,7 @@ Meteor.methods({
 
     'tasks.remove'(taskId) {
         check(taskId, String);
+        const task = Tasks.findOne(taskId);
         if (task.owner !== this.userId) {
             throw new Meteor.Error('not-Autorized');
         }
@@ -45,7 +56,7 @@ Meteor.methods({
         check(taskId, String);
         check(setChecked, Boolean);
 
-        const task = Task.findOne(taskId);
+        const task = Tasks.findOne(taskId);
 
         if (task.owner !== this.userId) {
             throw new Meteor.Error('not-Autorized');

@@ -7,8 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import AccountsUIWrapper from './AccountsUIWrapper.js';
 import { GoogleApiWrapper, InfoWindow, Map, Marker } from 'google-maps-react';
 import settings from '../../settings';
-
-const mapURL = `https://maps.googleapis.com/maps/api/js?v=3.ex&key=${settings.maps.google_maps_key}`;
+import Maps from "./Maps"
 
 class App extends Component {
 
@@ -27,13 +26,27 @@ class App extends Component {
   _handleSubmit(event) {
     event.preventDefault();
 
-    const textInput = ReactDOM.findDOMNode(this.refs.textInput);
+    const restauranNameInput = ReactDOM.findDOMNode(this.refs.restaurantName);
+    const restauranName = restauranNameInput.value.trim();
+    const restaurantLatInput = ReactDOM.findDOMNode(this.refs.restaurantLat);
+    const restaurantLat = restaurantLatInput.value.trim();
+    const restaurantLngInput = ReactDOM.findDOMNode(this.refs.restaurantLng);
+    const restaurantLng = restaurantLngInput.value.trim();
+    const restaurantTypeInput = ReactDOM.findDOMNode(this.refs.restaurantType);
+    const restaurantType = restaurantTypeInput.value.trim();
+    const restaurantCommentInput = ReactDOM.findDOMNode(this.refs.restaurantComment);
+    const restaurantComment = restaurantCommentInput.value.trim();
+    const restaurantScoreInput = ReactDOM.findDOMNode(this.refs.restauranScore);
+    const restauranScore = restaurantScoreInput.value.trim();
 
-    const text = textInput.value.trim();
+    Meteor.call('tasks.insert', restauranName, restaurantLat, restaurantLng, restaurantType, restaurantComment, restauranScore);
 
-    Meteor.call('tasks.insert', text);
-
-    textInput.value = '';
+    restauranNameInput.value = "";
+    restaurantLatInput.value = "";
+    restaurantLngInput.value = "";
+    restaurantTypeInput.value = "";
+    restaurantTypeInput.value = "";
+    restaurantScoreInput.value = "";
   }
   _toggleHideCompleted() {
     const { hideCompleted } = this.state;
@@ -58,104 +71,56 @@ class App extends Component {
         <Task
           key={task._id}
           task={task}
-          showPrivateButton={showPrivateButton
-          } />
+          showPrivateButton={showPrivateButton}
+        />
       )
     });
   }
 
   render() {
-    const { incompleteCount, currentUser } = this.props;
+    const { incompleteCount, currentUser, tasks } = this.props;
     const { hideCompleted } = this.state;
 
     return (
 
-      <div>
+      <section>
         <header>
           <h1>Welcome to restaurants!({incompleteCount} restaurants)</h1>
-
-          {/* <label className='hide-completed'>
-            <input
-              type="checkbox"
-              readOnly
-              checked={hideCompleted}
-              onClick={this.toggleHideCompleted}
-            />
-            add a new restaurant
-          </label> */}
 
           <AccountsUIWrapper />
           {currentUser ?
             <form className="new-task" onSubmit={this.handleSubmit}>
               <input type="text"
-                ref="textInput"
-                placeholder="Add a new Restaurant" />
+                ref="restaurantName"
+                placeholder="Add a new Restaurant name" />
+              <input type="text"
+                ref="restaurantLat"
+                placeholder="Add a Restaurant lat" />
+              <input type="text"
+                ref="restaurantLng"
+                placeholder="Add a Restaurant lng" />
+              <input type="text"
+                ref="restaurantType"
+                placeholder="Add a Restaurant type" />
+              <input type="text"
+                ref="restaurantComment"
+                placeholder="Write a restaurant Comment" />
+              <input type="text"
+                ref="restauranScore"
+                placeholder="Score the restaurant" />
+              <div className="col col-lg-3">
+                <button className="btn btn-primary btn-sm" id="createForm" type="submit">Create</button>
+              </div>
             </form> : null
           }
         </header>
         <ul>{this.renderTasks()}</ul>
 
-        {/* <Maps
-          googleMapURL= {mapURL}
-          containerElement= {<div style= {{height: '400px'}}/>}
-          mapElement= {<div style={{height: '100%'}}/>}
-          loadingElement= {<p>cargando...</p>}
-        /> */}
-        <Map google={this.props.google}
-          className="custom-map"
-          center={{
-            lat: 4.6328987,
-            lng: -74.1016272
-          }}
-          initialCenter={{
-            lat: 4.6328987,
-            lng: -74.1016272
-          }}
-          zoom={11}>
-          {/* {this.state.mapArray.map(marker => {
-            if (this.state.search !== "Todas") {
-              if (this.state.search === marker.city) {
-                return <Marker
-                  key={Math.random()}
-                  icon={marker.image_icon}
-                  address={marker.address}
-                  onClick={this.onMarkerClick}
-                  position={{
-                    lat: marker.latitude,
-                    lng: marker.longitude
-                  }}
-                  name={marker.name}
-                />
-              }
-            } else {
-              return <Marker
-                key={Math.random()}
-                icon={marker.image_icon}
-                address={marker.address}
-                onClick={this.onMarkerClick}
-                position={{
-                  lat: marker.latitude,
-                  lng: marker.longitude
-                }}
-                name={marker.name}
-              />
-            }
 
-          })} */}
-
-          {/* <InfoWindow
-            marker={this.state.activeMarker}
-            visible={this.state.showingInfoWindow}>
-            <div>
-              <h3>{this.state.selectedPlace.name}</h3>
-            </div>
-            <div>
-              <p>Dirección: {this.state.selectedPlace.address}</p>
-            </div>
-          </InfoWindow> */}
-
-        </Map>
-      </div>
+        <Maps
+          task={tasks}
+        />
+      </section>
     )
   }
 
@@ -170,6 +135,6 @@ export default withTracker(() => {
     currentUser: Meteor.user(),
   };
 })
-(GoogleApiWrapper({
-  apiKey: (settings.maps.google_maps_key)
-})(App));
+  (GoogleApiWrapper({
+    apiKey: (settings.maps.google_maps_key)
+  })(App));
