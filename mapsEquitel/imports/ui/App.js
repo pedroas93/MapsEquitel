@@ -14,9 +14,12 @@ class App extends Component {
     super(props);
 
     this.state = {
-      hideCompleted: false,
-    }
+      hideCompleted: false
 
+    }
+  }
+
+  componentDidMount() {
     this.handleSubmit = this._handleSubmit.bind(this);
     this.toggleHideCompleted = this._toggleHideCompleted(this);
   }
@@ -58,8 +61,6 @@ class App extends Component {
     const { hideCompleted } = this.state;
     let filteredTasks = tasks;
 
-    console.log('I NEED KNOW IS THISSSSSSSSSSS', tasks);
-
     if (hideCompleted) {
       filteredTasks = filteredTasks.filter(task => !task.checked);
     }
@@ -78,8 +79,7 @@ class App extends Component {
   }
 
   render() {
-    const { incompleteCount, currentUser, tasks } = this.props;
-    const { hideCompleted } = this.state;
+    const { incompleteCount, currentUser, tasks, qualifications } = this.props;
 
     return (
 
@@ -115,10 +115,7 @@ class App extends Component {
           }
         </header>
         <ul>{this.renderTasks()}</ul>
-        {/* {tasks.map(marker => {
-            return <h1>{marker._id}</h1>
 
-          })} */}
         <Maps
           task={tasks}
         />

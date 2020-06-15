@@ -3,20 +3,27 @@ import 'antd/dist/antd.css';
 import { Meteor } from 'meteor/meteor';
 import { Modal } from 'antd';
 import ReactDOM from 'react-dom'
+import { Qualifications } from '../api/qualifications';
+import { withTracker } from 'meteor/react-meteor-data';
 
 
-export default class ModalInfoMarker extends React.Component {
+
+class ModalInfoMarker extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       open_TC: false
     }
-
-    this.updateThisTask = this._updateThisTask.bind(this);
   }
 
-  _updateThisTask(event) {
+  componentDidMount
+    () {
+    this.updateOwnQualification = this._updateOwnQualification.bind(this);
+    this.updateAnotherQualification = this._updateAnotherQualification.bind(this);
+  }
+
+  _updateOwnQualification(event) {
     event.preventDefault();
 
     const { id } = this.props;
@@ -29,9 +36,22 @@ export default class ModalInfoMarker extends React.Component {
     Meteor.call('tasks.updateOwnCommentScore', id, restaurantComment, restauranScore);
   }
 
+  _updateAnotherQualification(event) {
+    event.preventDefault();
+
+    const { id } = this.props;
+    console.log('ENTER HERE IN THE PROPS????--->', id);
+    const restaurantCommentInput = ReactDOM.findDOMNode(this.refs.newComment);
+    const restaurantComment = restaurantCommentInput.value.trim();
+    const restaurantScoreInput = ReactDOM.findDOMNode(this.refs.newScore);
+    const restauranScore = restaurantScoreInput.value.trim();
+
+    Meteor.call('qualification.updateAnotherQualification', id, restaurantComment, restauranScore);
+  }
+
 
   render() {
-    const { name, comment, score, id, open_TC, handleClose_TC } = this.props;
+    const { name, comment, score, id, open_TC, handleClose_TC, qualifications } = this.props;
     const nameRestauran = "Restaurante: " + name;
     return (
       <section>
@@ -47,10 +67,9 @@ export default class ModalInfoMarker extends React.Component {
         >
           {/* <p align="justify"> <strong>Your RESTAURANT ID</strong>:{id}</p> */}
 
-          <form className="new-task" onSubmit={this.updateThisTask}>
+          <form className="new-task" onSubmit={this.updateOwnQualification}>
             <div>
               <p align="justify"> <strong>The original comment</strong>:</p>
-
               <input type="text"
                 ref="comment"
                 placeholder={comment} />
@@ -66,9 +85,61 @@ export default class ModalInfoMarker extends React.Component {
             </div>
           </form>
 
+          <form className="new-task" onSubmit={this.updateAnotherQualification}>
+            <div>
+              <p align="justify"> <strong>Add a new comment</strong>:</p>
+              <input type="text"
+                ref="newComment" />
+            </div>
+            <div>
+              <p align="justify"> <strong>Add a new Score</strong></p>
+              <input type="text"
+                ref="newScore" />
+            </div>
+            <div className="col col-lg-3">
+              <button className="btn btn-primary btn-sm" id="updateForm" type="submit">Add</button>
+            </div>
+          </form>
+
+          <br />
+
+          <div>
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col" className="text-center">User name |</th>
+                  <th scope="col" className="text-center">Comment </th>
+                  <th scope="col" className="text-center">|Score </th>
+                </tr>
+              </thead>
+              <tbody>
+                {qualifications.map(qualification => {
+                  if(qualification.taskId === id ){
+                    return (
+                      <tr key={qualification._id}>
+                        <td className="text-center">{qualification.username}</td>
+                        <td className="text-center">{qualification.setRestaurantComment}</td>
+                        <td className="text-center">{qualification.setRestauranScore}</td>
+                      </tr>
+                    )
+                  }
+                })}
+              </tbody>
+            </table>
+          </div>
         </Modal>
       </section>
     );
   }
 
 }
+
+export default withTracker(() => {
+  Meteor.subscribe('qualifications');
+
+  return {
+    qualifications: Qualifications.find({}, { sort: { createAt: -1 } }).fetch(),
+    incompleteCount: Qualifications.find({ checked: { $ne: true } }).count(),
+    currentUser: Meteor.user(),
+  };
+})(ModalInfoMarker);

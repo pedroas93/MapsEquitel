@@ -5,12 +5,13 @@ import classNames from 'classnames';
 class Task extends Component {
     constructor(props) {
         super(props);
+    }
 
+    componentDidMount() {
         this.deleteThisTask = this._deleteThisTask.bind(this);
         this.toggleCheked = this._toggleCheked.bind(this);
         this.togglePrivate = this._togglePrivate.bind(this);
     }
-
     _toggleCheked() {
         const { task } = this.props;
         Meteor.call('tasks.setChecked', task._id, !task.checked);
